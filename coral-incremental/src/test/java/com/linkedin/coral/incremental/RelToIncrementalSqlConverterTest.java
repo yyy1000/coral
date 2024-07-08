@@ -8,6 +8,7 @@ package com.linkedin.coral.incremental;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.sql.SqlNode;
 import org.apache.commons.io.FileUtils;
@@ -40,16 +41,17 @@ public class RelToIncrementalSqlConverterTest {
     FileUtils.deleteDirectory(new File(conf.get(CORAL_INCREMENTAL_TEST_DIR)));
   }
 
-  public String convert(RelNode relNode) {
-    RelNode incrementalRelNode = RelNodeIncrementalTransformer.convertRelIncremental(relNode);
+  public String convert(RelNode relNode, RelOptCluster cluster) {
+    RelNode incrementalRelNode = RelNodeIncrementalTransformer.convertRelIncremental(relNode, cluster);
     CoralRelToSqlNodeConverter converter = new CoralRelToSqlNodeConverter();
     SqlNode sqlNode = converter.convert(incrementalRelNode);
     return sqlNode.toSqlString(converter.INSTANCE).getSql();
   }
 
   public String getIncrementalModification(String sql) {
+    RelOptCluster cluster = hiveToRelConverter.getSqlToRelConverter().getCluster();
     RelNode originalRelNode = hiveToRelConverter.convertSql(sql);
-    return convert(originalRelNode);
+    return convert(originalRelNode, cluster);
   }
 
   @Test

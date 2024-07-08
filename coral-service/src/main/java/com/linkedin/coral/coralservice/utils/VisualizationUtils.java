@@ -46,7 +46,7 @@ public class VisualizationUtils {
       // Pass in pre-rewrite rel node
       switch (rewriteType) {
         case INCREMENTAL:
-          postRewriteRelNode = RelNodeIncrementalTransformer.convertRelIncremental(relNode);
+          postRewriteRelNode = RelNodeIncrementalTransformer.convertRelIncremental(relNode, null);
           break;
         case DATAMASKING:
         default:

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.calcite.plan.RelOptCluster;
 import org.apache.calcite.plan.RelOptTable;
 import org.apache.calcite.prepare.RelOptTableImpl;
 import org.apache.calcite.rel.RelNode;
@@ -29,13 +30,19 @@ import org.apache.calcite.rex.RexNode;
 
 public class RelNodeIncrementalTransformer {
 
+  static int level = 0;
   private RelNodeIncrementalTransformer() {
   }
 
-  public static RelNode convertRelIncremental(RelNode originalNode) {
+  public static RelNode convertRelIncremental(RelNode originalNode, RelOptCluster cluster) {
     RelShuttle converter = new RelShuttleImpl() {
       @Override
       public RelNode visit(TableScan scan) {
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, scan);
+          level++;
+          System.out.println(scan.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         RelOptTable originalTable = scan.getTable();
         List<String> incrementalNames = new ArrayList<>(originalTable.getQualifiedName());
         String deltaTableName = incrementalNames.remove(incrementalNames.size() - 1) + "_delta";
@@ -49,9 +56,13 @@ public class RelNodeIncrementalTransformer {
       public RelNode visit(LogicalJoin join) {
         RelNode left = join.getLeft();
         RelNode right = join.getRight();
-        RelNode incrementalLeft = convertRelIncremental(left);
-        RelNode incrementalRight = convertRelIncremental(right);
-
+        RelNode incrementalLeft = convertRelIncremental(left, cluster);
+        RelNode incrementalRight = convertRelIncremental(right, cluster);
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, join);
+          level++;
+          System.out.println(join.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         RexBuilder rexBuilder = join.getCluster().getRexBuilder();
 
         LogicalProject p1 = createProjectOverJoin(join, left, incrementalRight, rexBuilder);
@@ -65,13 +76,23 @@ public class RelNodeIncrementalTransformer {
 
       @Override
       public RelNode visit(LogicalFilter filter) {
-        RelNode transformedChild = convertRelIncremental(filter.getInput());
+        RelNode transformedChild = convertRelIncremental(filter.getInput(), cluster);
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, filter);
+          level++;
+          System.out.println(filter.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         return LogicalFilter.create(transformedChild, filter.getCondition());
       }
 
       @Override
       public RelNode visit(LogicalProject project) {
-        RelNode transformedChild = convertRelIncremental(project.getInput());
+        RelNode transformedChild = convertRelIncremental(project.getInput(), cluster);
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, project);
+          level++;
+          System.out.println(project.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         return LogicalProject.create(transformedChild, project.getProjects(), project.getRowType());
       }
 
@@ -79,13 +100,23 @@ public class RelNodeIncrementalTransformer {
       public RelNode visit(LogicalUnion union) {
         List<RelNode> children = union.getInputs();
         List<RelNode> transformedChildren =
-            children.stream().map(child -> convertRelIncremental(child)).collect(Collectors.toList());
+            children.stream().map(child -> convertRelIncremental(child, cluster)).collect(Collectors.toList());
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, union);
+          level++;
+          System.out.println(union.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         return LogicalUnion.create(transformedChildren, union.all);
       }
 
       @Override
       public RelNode visit(LogicalAggregate aggregate) {
-        RelNode transformedChild = convertRelIncremental(aggregate.getInput());
+        RelNode transformedChild = convertRelIncremental(aggregate.getInput(), cluster);
+        if(cluster != null){
+          System.out.printf("Level = %d, Operator = %s\n", level, aggregate);
+          level++;
+          System.out.println(aggregate.computeSelfCost(cluster.getPlanner(), cluster.getMetadataQuery()));
+        }
         return LogicalAggregate.create(transformedChild, aggregate.getGroupSet(), aggregate.getGroupSets(),
             aggregate.getAggCallList());
       }

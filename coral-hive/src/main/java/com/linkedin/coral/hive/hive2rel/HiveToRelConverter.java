@@ -84,7 +84,7 @@ public class HiveToRelConverter extends ToRelConverter {
   }
 
   @Override
-  protected SqlToRelConverter getSqlToRelConverter() {
+  public SqlToRelConverter getSqlToRelConverter() {
     if (sqlToRelConverter == null) {
       sqlToRelConverter =
           new HiveSqlToRelConverter(new HiveViewExpander(this), getSqlValidator(), getCalciteCatalogReader(),
