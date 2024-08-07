@@ -62,18 +62,6 @@ public class RelNodeCostEstimator {
     }
   }
 
-  class TableStatistic {
-    // The number of rows in the table
-    Double rowCount;
-    // The number of distinct values in each column
-    // This doesn't work for nested columns and complex types
-    Map<String, Double> distinctCountByRow;
-
-    public TableStatistic() {
-      this.distinctCountByRow = new HashMap<>();
-    }
-  }
-
   class JoinKey {
     String leftTableName;
     String rightTableName;
@@ -88,7 +76,7 @@ public class RelNodeCostEstimator {
     }
   }
 
-  private Map<String, TableStatistic> costStatistic = new HashMap<>();
+  public Map<String, TableStatistic> costStatistic = new HashMap<>();
 
   private final Double IOCostValue;
 
@@ -156,7 +144,7 @@ public class RelNodeCostEstimator {
     return executionCostInfo.executionCost * executionCostValue + writeCost;
   }
 
-  private CostInfo getExecutionCost(RelNode rel) {
+  public CostInfo getExecutionCost(RelNode rel) {
     if (rel instanceof TableScan) {
       return getExecutionCostTableScan((TableScan) rel);
     } else if (rel instanceof LogicalJoin) {

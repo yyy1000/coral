@@ -1,0 +1,62 @@
+{
+  "hive.test.alpha_prev": {
+    "RowCount": 100,
+    "DistinctCounts": {
+      "x": 10
+    }
+  },
+  "hive.test.beta_prev": {
+    "RowCount": 20,
+    "DistinctCounts": {
+      "x": 5
+    }
+  },
+  "hive.test.gamma_prev": {
+    "RowCount": 50,
+    "DistinctCounts": {
+      "x": 25
+    }
+  },
+  "hive.test.alpha_delta": {
+    "RowCount": 100,
+    "DistinctCounts": {
+      "x": 10
+    }
+  },
+  "hive.test.beta_delta": {
+    "RowCount": 20,
+    "DistinctCounts": {
+      "x": 5
+    }
+  },
+  "hive.test.gamma_delta": {
+    "RowCount": 50,
+    "DistinctCounts": {
+      "x": 25
+    }
+  },
+  "hive.test.alpha": {
+    "RowCount": 200,
+    "DistinctCounts": {
+      "x": 10
+    }
+  },
+  "hive.test.beta": {
+    "RowCount": 40,
+    "DistinctCounts": {
+      "x": 5
+    }
+  },
+  "hive.test.gamma": {
+    "RowCount": 100,
+    "DistinctCounts": {
+      "x": 25
+    }
+  },
+  "Table#0_prev": {
+    "RowCount": 50,
+    "DistinctCounts": {
+      "x": 10
+    }
+  }
+}
