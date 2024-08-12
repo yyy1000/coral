@@ -264,7 +264,7 @@ public class RelNodeCostEstimator {
       unionSize += inputCost.outputSize;
       unionCost = max(inputCost.executionCost, unionCost);
     }
-    unionCost *= 2;
+    unionCost *= 1.2;
     return new CostInfo(unionCost, unionSize);
   }
 
