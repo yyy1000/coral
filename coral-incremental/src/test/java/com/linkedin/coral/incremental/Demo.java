@@ -55,7 +55,7 @@ public class Demo {
     return sqlNode.toSqlString(converter.INSTANCE).getSql();
   }
 
-  List<RelNode> findBestPlan(String sql, String statisticFilePath) throws IOException{
+  List<RelNode> getAllPlansCostAndfindBestPlan(String sql, String statisticFilePath) throws IOException{
     RelNode relNode = hiveToRelConverter.convertSql(sql);
     estimator.loadStatistic(statisticFilePath);
     RelNodeGenerationTransformer transformer = new RelNodeGenerationTransformer();
@@ -102,20 +102,20 @@ public class Demo {
 
   @Test
   public void demo() throws IOException {
-    List<RelNode> bestPlan = findBestPlan(sql, TEST_JSON_FILE_DIR + "demo_statistic.json");
+    List<RelNode> bestPlan = getAllPlansCostAndfindBestPlan(sql, TEST_JSON_FILE_DIR + "demo_statistic.json");
     System.out.println("Best Plan:");
-    List<String> bestPlanStr = new ArrayList<>();
+    List<String> bestPlanQueries = new ArrayList<>();
     for(RelNode node : bestPlan) {
-      bestPlanStr.add(convert(node) + ";\n");
+      bestPlanQueries.add(convert(node) + ";\n");
     }
-    for(String plan : bestPlanStr) {
+    for(String plan : bestPlanQueries) {
       System.out.println(plan);
     }
   }
 
   @Test
   public void demo2() throws IOException {
-    List<RelNode> bestPlan = findBestPlan(sql, TEST_JSON_FILE_DIR + "demo2_statistic.json");
+    List<RelNode> bestPlan = getAllPlansCostAndfindBestPlan(sql, TEST_JSON_FILE_DIR + "demo2_statistic.json");
     System.out.println("Best Plan:");
     List<String> bestPlanStr = new ArrayList<>();
     for(RelNode node : bestPlan) {
@@ -128,7 +128,7 @@ public class Demo {
 
   @Test
   public void demo3() throws IOException {
-    List<RelNode> bestPlan = findBestPlan(sql, TEST_JSON_FILE_DIR + "demo3_statistic.json");
+    List<RelNode> bestPlan = getAllPlansCostAndfindBestPlan(sql, TEST_JSON_FILE_DIR + "demo3_statistic.json");
     System.out.println("Best Plan:");
     List<String> bestPlanStr = new ArrayList<>();
     for(RelNode node : bestPlan) {
