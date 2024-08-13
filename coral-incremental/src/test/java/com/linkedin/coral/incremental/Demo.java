@@ -9,7 +9,6 @@ import com.linkedin.coral.transformers.CoralRelToSqlNodeConverter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +23,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static com.linkedin.coral.incremental.TestUtils.*;
-import static org.testng.Assert.*;
 
 
 public class Demo {
@@ -55,7 +53,7 @@ public class Demo {
     return sqlNode.toSqlString(converter.INSTANCE).getSql();
   }
 
-  List<RelNode> FindBestPlan(List<List<RelNode>> plans) throws IOException{
+  List<String> getBestPlan(List<List<RelNode>> plans) throws IOException{
     int i = 0;
     List<RelNode> bestPlan = null;
     Double bestCost = Double.MAX_VALUE;
@@ -73,14 +71,21 @@ public class Demo {
       }
       System.out.printf("Plan %d cost is %f\n\n", i, cost);
     }
-    return bestPlan;
+    System.out.println("Best Plan:");
+    List<String> bestPlanQueries = new ArrayList<>();
+    for(RelNode node : bestPlan) {
+      bestPlanQueries.add(convert(node) + ";\n");
+    }
+    for(String plan : bestPlanQueries) {
+      System.out.println(plan);
+    }
+    return bestPlanQueries;
   }
 
-  List<List<RelNode>> getPlansAndSetStatistic(String sql, String statisticFilePath) throws IOException {
+  List<List<RelNode>> generateAllPlansWithCost(String sql) throws IOException {
     RelNode relNode = hiveToRelConverter.convertSql(sql);
     RelNodeGenerationTransformer transformer = new RelNodeGenerationTransformer();
     List<List<RelNode>> plans = transformer.generateIncrementalRelNodes(relNode);
-    estimator.loadStatistic(statisticFilePath);
     Map<String, RelNode> map = transformer.getDeltaRelNodes();
     int size = map.size() - 1;
     String largestName = "Table#" + size + "_delta";
@@ -116,24 +121,28 @@ public class Demo {
     return bestPlanQueries;
   }
 
+  void loadStatistic(String statisticFilePath) throws IOException {
+    estimator.loadStatistic(statisticFilePath);
+  }
+
   @Test
   public void demo1() throws IOException {
-    List<List<RelNode>> plans = getPlansAndSetStatistic(sql, TEST_JSON_FILE_DIR + "demo_statistic.json");
-    List<RelNode> bestPlan = FindBestPlan(plans);
-    getBestPlanQuery(bestPlan);
+    loadStatistic(TEST_JSON_FILE_DIR + "demo_statistic.json");
+    List<List<RelNode>> plans = generateAllPlansWithCost(sql);
+    getBestPlan(plans);
   }
 
   @Test
   public void demo2() throws IOException {
-    List<List<RelNode>> plans = getPlansAndSetStatistic(sql, TEST_JSON_FILE_DIR + "demo2_statistic.json");
-    List<RelNode> bestPlan = FindBestPlan(plans);
-    getBestPlanQuery(bestPlan);
+    loadStatistic(TEST_JSON_FILE_DIR + "demo_statistic2.json");
+    List<List<RelNode>> plans = generateAllPlansWithCost(sql);
+    getBestPlan(plans);
   }
 
   @Test
   public void demo3() throws IOException {
-    List<List<RelNode>> plans = getPlansAndSetStatistic(sql, TEST_JSON_FILE_DIR + "demo3_statistic.json");
-    List<RelNode> bestPlan = FindBestPlan(plans);
-    getBestPlanQuery(bestPlan);
+    loadStatistic(TEST_JSON_FILE_DIR + "demo_statistic2.json");
+    List<List<RelNode>> plans = generateAllPlansWithCost(sql);
+    getBestPlan(plans);
   }
 }
