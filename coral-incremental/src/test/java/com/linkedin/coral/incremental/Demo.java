@@ -117,7 +117,7 @@ public class Demo {
   }
 
   @Test
-  public void demo() throws IOException {
+  public void demo1() throws IOException {
     List<List<RelNode>> plans = getPlansAndSetStatistic(sql, TEST_JSON_FILE_DIR + "demo_statistic.json");
     List<RelNode> bestPlan = FindBestPlan(plans);
     getBestPlanQuery(bestPlan);
