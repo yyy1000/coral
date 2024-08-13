@@ -53,12 +53,13 @@ public class Demo {
     return sqlNode.toSqlString(converter.INSTANCE).getSql();
   }
 
-  List<String> getBestPlan(List<List<RelNode>> plans) throws IOException{
+  List<String> getBestPlan(List<List<RelNode>> plans){
     int i = 0;
     List<RelNode> bestPlan = null;
     Double bestCost = Double.MAX_VALUE;
     for(List<RelNode> plan : plans) {
       i++;
+      System.out.println("------------------------------");
       System.out.printf("Plan %d\n", i);
       Double cost = 0.0;
       for (RelNode node : plan) {
@@ -71,6 +72,7 @@ public class Demo {
       }
       System.out.printf("Plan %d cost is %f\n\n", i, cost);
     }
+    System.out.println("------------------------------");
     System.out.println("Best Plan:");
     List<String> bestPlanQueries = new ArrayList<>();
     for(RelNode node : bestPlan) {
@@ -82,7 +84,7 @@ public class Demo {
     return bestPlanQueries;
   }
 
-  List<List<RelNode>> generateAllPlansWithCost(String sql) throws IOException {
+  List<List<RelNode>> generateAllPlansWithCost(String sql) {
     RelNode relNode = hiveToRelConverter.convertSql(sql);
     RelNodeGenerationTransformer transformer = new RelNodeGenerationTransformer();
     List<List<RelNode>> plans = transformer.generateIncrementalRelNodes(relNode);
@@ -107,18 +109,6 @@ public class Demo {
       estimator.costStatistic.put(newName, newTableStatistic);
     }
     return plans;
-  }
-
-  List<String> getBestPlanQuery(List<RelNode> bestPlan) {
-    System.out.println("Best Plan:");
-    List<String> bestPlanQueries = new ArrayList<>();
-    for(RelNode node : bestPlan) {
-      bestPlanQueries.add(convert(node) + ";\n");
-    }
-    for(String plan : bestPlanQueries) {
-      System.out.println(plan);
-    }
-    return bestPlanQueries;
   }
 
   void loadStatistic(String statisticFilePath) throws IOException {
