@@ -134,14 +134,14 @@ public class Demo {
 
   @Test
   public void demo2() throws IOException {
-    loadStatistic(TEST_JSON_FILE_DIR + "demo_statistic2.json");
+    loadStatistic(TEST_JSON_FILE_DIR + "demo2_statistic.json");
     List<List<RelNode>> plans = generateAllPlansWithCost(sql);
     getBestPlan(plans);
   }
 
   @Test
   public void demo3() throws IOException {
-    loadStatistic(TEST_JSON_FILE_DIR + "demo_statistic2.json");
+    loadStatistic(TEST_JSON_FILE_DIR + "demo3_statistic.json");
     List<List<RelNode>> plans = generateAllPlansWithCost(sql);
     getBestPlan(plans);
   }
